@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Windows 98 Style Virtual Desktop Portfolio</title>
+  <style>
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Tahoma", "MS Sans Serif", sans-serif;
+      background: #008080;
+      overflow: hidden;
+    }
+    /* Desktop background */
+    #desktop {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: url('desktop-bg.jpg') no-repeat center center;
+      background-size: cover;
+    }
+    /* Desktop Icon Style */
+    .desktop-icon {
+      width: 64px;
+      text-align: center;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+      position: absolute;
+    }
+    .desktop-icon img {
+      width: 48px;
+      height: 48px;
+      display: block;
+      margin: 0 auto 4px;
+    }
+    /* Position desktop icons */
+    #iconPortfolio { left: 20px; top: 20px; }
+    #iconGame { left: 100px; top: 20px; }
+    #iconContact { left: 180px; top: 20px; }
+    /* Window (application) style */
+    .window {
+      position: absolute;
+      width: 600px;
+      border: 2px solid #000;
+      background: #C0C0C0;
+      box-shadow: 2px 2px 0px #808080;
+      display: none;
+    }
+    .window-header {
+      background: #000080;
+      color: white;
+      padding: 4px;
+      cursor: move;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+    }
+    .window-controls {
+      display: flex;
+      gap: 2px;
+    }
+    .window-controls button {
+      background: #C0C0C0;
+      border: 2px outset;
+      color: black;
+      width: 20px;
+      height: 20px;
+      line-height: 14px;
+      padding: 0;
+      cursor: pointer;
+    }
+    .window-content {
+      background: white;
+      padding: 10px;
+      height: 400px;
+      overflow: auto;
+    }
+    /* Game Window overrides */
+    #gameWindow {
+      width: 900px !important;
+      left: 150px;
+      top: 150px;
+      display: none;
+    }
+    #gameWindow .window-content {
+      padding: 0 !important;
+      height: 600px !important;
+      overflow: visible !important;
+      position: relative;
+    }
+    /* The game canvas */
+    #gameCanvas {
+      border: 1px solid #fff;
+      position: absolute;
+    }
+    /* Taskbar styling */
+    #taskbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #C0C0C0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #808080;
+      border-bottom: 2px solid #808080;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+    }
+    #start-button {
+      background: #C0C0C0;
+      border: 2px outset;
+      font-size: 14px;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+    #taskbar-clock {
+      margin-left: auto;
+      padding: 0 10px;
+      font-size: 14px;
+      color: black;
+      font-weight: bold;
+    }
+    /* Start Menu */
+    #start-menu {
+      position: absolute;
+      left: 0;
+      bottom: 35px;
+      width: 160px;
+      background: #C0C0C0;
+      border: 2px outset #fff;
+      display: none;
+      font-size: 14px;
+    }
+    #start-menu ul {
+      list-style: none;
+    }
+    #start-menu ul li {
+      padding: 5px 10px;
+      border-bottom: 1px solid #808080;
+      cursor: pointer;
+      color: black;
+    }
+    #start-menu ul li:hover {
+      background: #000080;
+      color: white;
+    }
+    /* Lightbox for enlarged images */
+    #lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    }
+    /* Non-grid images retain our earlier fix */
+    .window-content img:not(.grid-thumbnail) {
+      max-width: 50% !important;
+      height: auto;
+      margin: 10px 0;
+    }
+    /* Horizontal row for FLUX images */
+    .image-grid {
+      display: flex;
+      flex-direction: row;
+      gap: 0;
+      margin-top: 10px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .image-grid img {
+      width: 170px;
+      height: 170px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+    /* Mobile-friendly adjustments */
+    @media screen and (max-width: 600px) {
+      body { font-size: 14px; overflow: auto; }
+      #desktop { overflow: auto; }
+      .desktop-icon {
+        width: 48px;
+        font-size: 10px;
+      }
+      .desktop-icon img {
+        width: 36px;
+        height: 36px;
+      }
+      /* Reposition icons on mobile */
+      #iconPortfolio { left: 10px; top: 10px; }
+      #iconGame { left: 70px; top: 10px; }
+      #iconContact { left: 130px; top: 10px; }
+      /* Scale windows for smaller screens */
+      .window {
+        width: 95%;
+        left: 2.5%;
+        top: 50px;
+      }
+      /* Adjust game window separately if needed */
+      #gameWindow {
+        width: 95% !important;
+        left: 2.5%;
+        top: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="desktop">
+    <!-- Desktop Icons -->
+    <div class="desktop-icon" id="iconPortfolio">
+      <img src="portfolio.png" alt="Portfolio" />
+      <span>Portfolio</span>
+    </div>
+    <div class="desktop-icon" id="iconGame">
+      <img src="game.png" alt="Game" />
+      <span>Game</span>
+    </div>
+    <div class="desktop-icon" id="iconContact">
+      <img src="contact.png" alt="Contact" />
+      <span>Contact</span>
+    </div>
+    <!-- Windows -->
+    <div class="window" id="introWindow">
+      <div class="window-header">
+        <span class="window-title">Introduction</span>
+        <div class="window-controls">
+          <button class="window-maximize">□</button>
+          <button class="window-close" id="introClose">X</button>
+        </div>
+      </div>
+      <div class="window-content">
+        <h1>Welcome to my portfolio!</h1>
+        <p>Double-click a desktop icon to see more information.</p>
+      </div>
+    </div>
+    <div class="window" id="portfolioWindow" style="left: 100px; top: 100px;">
+      <div class="window-header">
+        <span class="window-title">Portfolio</span>
+        <div class="window-controls">
+          <button class="window-maximize">□</button>
+          <button class="window-close" id="portfolioClose">X</button>
+        </div>
+      </div>
+      <div class="window-content">
+        <!-- Portfolio Content -->
+        <h1>Welcome to My Portfolio</h1>
+        <p>This is a classic Windows 98–style virtual desktop portfolio. Here I'll showcase my AI projects as well as some of my technical expertise.</p>
+        <h2>Video Generation</h2>
+        <p>Perfect for replacing stock footage, I can generate AI video in minutes to even seconds.</p>
+        <p>Here is a sample GIF I created using OpenAI's SORA model (converted from video):</p>
+        <img src="20250217_1609_Cool Cat Cruise_simple_compose_01jmavx7x3eyds7d7gveyd7v9q(1).gif" alt="Sample GIF" style="max-width: 100%; height: auto; margin: 10px 0;" />
+        <h2>Image Generation Workflow</h2>
+        <p>The previous video was generated using a closed-source model, so below I'll be showcasing images I generated locally on my machine as well as my workflow. I'm familiar with Automatic1111 and ComfyUI, my preferred interface for its versatility and design.</p>
+        <img src="comfyui terminal.png" alt="Sample Image" style="max-width: 50% !important; height: auto; margin: 10px 0;" />
+        <p>To use ComfyUI, I built a Conda environment with all required dependencies. Using that environment I launch the Python script with custom launch options for lowvram. After that, I access the web interface in my browser.</p>
+        <img src="ComfyUI workflow.png" alt="Sample Image" style="max-width: 50% !important; height: auto; margin: 10px 0;" />
+        <p>This is my basic FLUX model ComfyUI workflow, for using FLUX locally on my machine. I thought the shrimp was cool. ComfyUI is a little more complicated than other tools, but it allows a huge level of control over generation and customization while helping to visualize the workflow for a better understanding.</p>
+        <h2>Generated Images</h2>
+        <p>Below are some more images I generated using various models, including FLUX. For a closer look, click on any thumbnail to view the full photo:</p>
+        <div class="image-grid">
+          <img src="ComfyUI_temp_sphah_00001_.png" alt="Sample Image" />
+          <img src="ComfyUI_temp_qlqjd_00001_.png" alt="Sample Image" />
+          <img src="2024-09-13-144547_1034424022909730_VAL_30.png" alt="Sample Image" />
+          <img src="20stepsFlux_00001_.png" alt="Sample Image" />
+        </div>
+        <h2>AI Research</h2>
+        <p>Below is a short debate I prompted the AI to research on the CompTIA certification.</p>
+        <p>Proposition: Arguments Against CompTIA A+</p>
+        <!-- CompTIA argument section with updated headers -->
+        <h3>1. Lack of Third-Party Review</h3>
+          <h4>Transparency and Accountability:</h4>
+          <p>CompTIA’s A+ exams are developed and maintained solely by internal teams. Without an opportunity for independent third-party review, there is little external accountability to verify that the questions are unbiased, current, and aligned with industry best practices.</p>
+          <h4>Quality Assurance Issues:</h4>
+          <p>External experts could provide valuable feedback on content relevance and rigor. The absence of such reviews raises concerns about whether the exam continually adapts to technological advances and evolving industry standards.</p>
+        <h3>2. Non-Publication of Previous Tests</h3>
+          <h4>Inhibiting Learning and Improvement:</h4>
+          <p>By not publishing previous tests or sample questions, CompTIA limits the ability of educators and candidates to understand the exam’s scope and style. This opacity can force candidates to rely on memorization techniques or “teaching to the test,” rather than developing a deep, practical understanding of IT fundamentals.</p>
+          <h4>Stagnation of Content Evolution:</h4>
+          <p>Publicly available exam materials would allow for community-driven critique and iterative improvement. The closed nature of the test bank prevents broader industry feedback that might help the certification evolve in a way that genuinely reflects current technical challenges and practices.</p>
+        <h3>3. Implications for Trust and Industry Credibility</h3>
+          <h4>Erosion of Stakeholder Confidence:</h4>
+          <p>In an era where openness and peer review are increasingly valued, a certification that hides its testing methodology can undermine trust among employers, educators, and professionals. Transparency is crucial for ensuring that a certification remains a reliable indicator of competency.</p>
+          <h4>Missed Opportunities for Collaborative Enhancement:</h4>
+          <p>An open review process could foster a collaborative environment where subject matter experts help refine and improve exam content. This collaborative transparency could drive higher standards and more relevant testing criteria in the long run.</p>
+        <h2>Technical Know-how</h2>
+        <p>I can do more than AI! I have a variety of technical expertise. Below is an image of my home NAS. I hobbled it together using an old laptop, TrueNAS Scale, and some adapters to expand storage. The small drive is an NVME cache, while the large drive is where I store my data. I have NFS and SMB shares running perfectly.</p>
+        <img src="NAS.jpg" alt="Sample Image" />
+        <h2>Media Server</h2>
+        <p>Using my NAS I've also set up a dedicated media server, Jellyfin. I can access any permitted video on my NAS from the Jellyfin app or network interface within my home network, like a personal Netflix. If you're familiar with PLEX, this is a more complicated solution, but it's open source! Below is an image of it in action.</p>
+        <img src="jellyfin.png" alt="Sample Image" />
+      </div>
+    </div>
+    <div class="window" id="gameWindow" style="left: 150px; top: 150px;">
+      <div class="window-header">
+        <span class="window-title">Retrowave Game</span>
+        <div class="window-controls">
+          <button class="window-maximize">□</button>
+          <button class="window-close" id="gameClose">X</button>
+        </div>
+      </div>
+      <div class="window-content" style="padding: 0; height: 600px !important;">
+        <canvas id="gameCanvas"></canvas>
+      </div>
+    </div>
+    <div class="window" id="contactWindow" style="left: 200px; top: 150px; display: none;">
+      <div class="window-header">
+        <span class="window-title">Contact Information</span>
+        <div class="window-controls">
+          <button class="window-maximize">□</button>
+          <button class="window-close" id="contactClose">X</button>
+        </div>
+      </div>
+      <div class="window-content">
+         <h1>Contact Information</h1>
+         <p>Email: your.email@example.com</p>
+         <p>Phone: (123) 456-7890</p>
+         <p>Address: 123 Main St, Anytown, USA</p>
+      </div>
+    </div>
+    <!-- Taskbar and Start Menu -->
+    <div id="taskbar">
+      <button id="start-button">Start</button>
+      <div id="taskbar-clock"></div>
+    </div>
+    <div id="start-menu">
+      <ul>
+        <li id="startMenuIntro">Introduction</li>
+      </ul>
+    </div>
+  </div>
+  <!-- Lightbox -->
+  <div id="lightbox"></div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Helper to remove duplicate icons
+      function removeDuplicateIcons(selector) {
+        const icons = document.querySelectorAll(selector);
+        if (icons.length > 1) {
+          for (let i = 1; i < icons.length; i++) {
+            icons[i].remove();
+          }
+        }
+      }
+      removeDuplicateIcons('#iconPortfolio');
+      removeDuplicateIcons('#iconGame');
+      
+      // DRAGGABLE WINDOWS
+      function makeDraggable(el, handle) {
+        let offsetX = 0, offsetY = 0;
+        let isDragging = false;
+        handle.addEventListener("mousedown", function(e) {
+          isDragging = true;
+          offsetX = e.clientX - el.offsetLeft;
+          offsetY = e.clientY - el.offsetTop;
+          el.style.zIndex = highestZIndex() + 1;
+          e.preventDefault();
+        });
+        document.addEventListener("mouseup", () => { isDragging = false; });
+        document.addEventListener("mousemove", function(e) {
+          if (isDragging) {
+            el.style.left = (e.clientX - offsetX) + "px";
+            el.style.top = (e.clientY - offsetY) + "px";
+          }
+        });
+      }
+      function highestZIndex() {
+        const windows = document.getElementsByClassName("window");
+        let highest = 0;
+        for (let i = 0; i < windows.length; i++) {
+          const z = parseInt(window.getComputedStyle(windows[i]).zIndex) || 0;
+          if (z > highest) highest = z;
+        }
+        return highest;
+      }
+      function updateClock() {
+        const now = new Date();
+        const options = { timeZone: "America/New_York", hour12: true, hour: "numeric", minute: "numeric", second: "numeric" };
+        document.getElementById("taskbar-clock").textContent = now.toLocaleTimeString("en-US", options) + " EST";
+      }
+      const originalPositions = {};
+      function toggleMaximize(win) {
+        if (!originalPositions[win.id]) {
+          originalPositions[win.id] = {
+            left: win.style.left,
+            top: win.style.top,
+            width: win.style.width,
+            height: win.style.height,
+            contentHeight: win.querySelector(".window-content").style.height
+          };
+        }
+        if (win.dataset.maximized === "true") {
+          let original = originalPositions[win.id];
+          win.style.left = original.left;
+          win.style.top = original.top;
+          win.style.width = original.width || "600px";
+          win.style.height = original.height || "auto";
+          win.dataset.maximized = "false";
+          win.querySelector(".window-content").style.height = original.contentHeight || "400px";
+        } else {
+          win.style.left = "0px";
+          win.style.top = "0px";
+          win.style.width = window.innerWidth + "px";
+          win.style.height = window.innerHeight + "px";
+          win.dataset.maximized = "true";
+          const headerHeight = win.querySelector(".window-header").offsetHeight;
+          win.querySelector(".window-content").style.height = (window.innerHeight - headerHeight - 10) + "px";
+        }
+      }
+      function toggleStartMenu() {
+        const menu = document.getElementById("start-menu");
+        menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+      }
+      function showWindow(win) {
+        win.style.display = "block";
+        win.style.zIndex = highestZIndex() + 1;
+        if (win.id === "gameWindow") {
+          resizeGameCanvas();
+        }
+      }
+      
+      // Setup Windows
+      const introWindow = document.getElementById("introWindow");
+      const introHeader = introWindow.querySelector(".window-header");
+      introWindow.style.display = "block";
+      introWindow.style.zIndex = highestZIndex() + 1;
+      let iRect = introWindow.getBoundingClientRect();
+      introWindow.style.left = ((window.innerWidth - iRect.width) / 2) + "px";
+      introWindow.style.top = ((window.innerHeight - iRect.height) / 2) + "px";
+      makeDraggable(introWindow, introHeader);
+      introWindow.querySelector(".window-maximize").addEventListener("click", () => { toggleMaximize(introWindow); });
+      document.getElementById("introClose").addEventListener("click", () => { introWindow.style.display = "none"; });
+      
+      const portfolioWindow = document.getElementById("portfolioWindow");
+      const portfolioHeader = portfolioWindow.querySelector(".window-header");
+      makeDraggable(portfolioWindow, portfolioHeader);
+      portfolioWindow.querySelector(".window-maximize").addEventListener("click", () => { toggleMaximize(portfolioWindow); });
+      document.getElementById("portfolioClose").addEventListener("click", () => { portfolioWindow.style.display = "none"; });
+      document.getElementById("iconPortfolio").addEventListener("dblclick", () => { showWindow(portfolioWindow); });
+      
+      const gameWindow = document.getElementById("gameWindow");
+      const gameHeader = gameWindow.querySelector(".window-header");
+      makeDraggable(gameWindow, gameHeader);
+      gameWindow.querySelector(".window-maximize").addEventListener("click", () => { toggleMaximize(gameWindow); });
+      document.getElementById("gameClose").addEventListener("click", () => { gameWindow.style.display = "none"; });
+      document.getElementById("iconGame").addEventListener("dblclick", () => { showWindow(gameWindow); });
+      
+      const contactWindow = document.getElementById("contactWindow");
+      const contactHeader = contactWindow.querySelector(".window-header");
+      makeDraggable(contactWindow, contactHeader);
+      contactWindow.querySelector(".window-maximize").addEventListener("click", () => { toggleMaximize(contactWindow); });
+      document.getElementById("contactClose").addEventListener("click", () => { contactWindow.style.display = "none"; });
+      document.getElementById("iconContact").addEventListener("dblclick", () => { showWindow(contactWindow); });
+      
+      document.getElementById("start-button").addEventListener("click", () => { toggleStartMenu(); });
+      document.getElementById("startMenuIntro").addEventListener("click", () => {
+        document.getElementById("start-menu").style.display = "none";
+        showWindow(introWindow);
+      });
+      
+      setInterval(updateClock, 1000);
+      updateClock();
+      
+      // ------------------- Retrowave Game -------------------
+      const viewportWidth = 800, viewportHeight = 600;
+      const worldWidth = 3000, worldHeight = 1080;
+      const camera = { x: 0, y: 0 };
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      let gameEnded = false;
+      
+      function resizeGameCanvas() {
+        const gameContainer = document.querySelector('#gameWindow .window-content');
+        const containerWidth = gameContainer.clientWidth;
+        const containerHeight = gameContainer.clientHeight;
+        const scale = Math.min(containerWidth / viewportWidth, containerHeight / viewportHeight);
+        canvas.style.transform = 'scale(' + scale + ')';
+        canvas.style.transformOrigin = 'top left';
+        canvas.style.left = ((containerWidth - viewportWidth * scale) / 2) + 'px';
+        canvas.style.top = ((containerHeight - viewportHeight * scale) / 2) + 'px';
+        canvas.width = viewportWidth;
+        canvas.height = viewportHeight;
+      }
+      window.addEventListener('resize', resizeGameCanvas);
+      resizeGameCanvas();
+      
+      function updateCamera() {
+        camera.x = player.x + player.width / 2 - viewportWidth / 2;
+        camera.y = player.y + player.height / 2 - viewportHeight / 2;
+        if (camera.x < 0) camera.x = 0;
+        if (camera.y < 0) camera.y = 0;
+        if (camera.x > worldWidth - viewportWidth) camera.x = worldWidth - viewportWidth;
+        if (camera.y > worldHeight - viewportHeight) camera.y = worldHeight - viewportHeight;
+      }
+      
+      const gravity = 0.5, friction = 0.8, moveSpeed = 5, jumpStrength = -10;
+      const player = {
+        x: 50,
+        y: worldHeight - 100,
+        width: 40,
+        height: 60,
+        dx: 0,
+        dy: 0,
+        onGround: false,
+        hasKey: false
+      };
+      const gameKeys = {};
+      window.addEventListener('keydown', (e) => { gameKeys[e.code] = true; });
+      window.addEventListener('keyup', (e) => { gameKeys[e.code] = false; });
+      
+      let currentRoom = 1;
+      const rooms = {
+        1: {
+          platforms: [
+            { x: 0, y: worldHeight - 40, width: worldWidth, height: 40 },
+            { x: 300, y: worldHeight - 140, width: 200, height: 20 },
+            { x: 1200, y: worldHeight - 240, width: 150, height: 20 }
+          ],
+          door: { x: worldWidth - 100, y: worldHeight - 100, width: 40, height: 60, locked: true },
+          key: { x: 350, y: worldHeight - 180, width: 20, height: 20, collected: false }
+        },
+        2: {
+          platforms: [
+            { x: 0, y: worldHeight - 40, width: worldWidth, height: 40 },
+            { x: 200, y: worldHeight - 140, width: 200, height: 20 },
+            { x: 1000, y: worldHeight - 240, width: 150, height: 20 }
+          ]
+        }
+      };
+      
+      function drawNeonRect(x, y, width, height, fillStyle, shadowColor) {
+        ctx.save();
+        ctx.shadowColor = shadowColor;
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = fillStyle;
+        ctx.fillRect(x - camera.x, y - camera.y, width, height);
+        ctx.restore();
+      }
+      
+      function drawBackground() {
+        const gradient = ctx.createLinearGradient(0, 0, 0, worldHeight);
+        gradient.addColorStop(0, "#2b003b");
+        gradient.addColorStop(1, "#000012");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0 - camera.x, 0 - camera.y, worldWidth, worldHeight);
+      }
+      
+      function drawRetroSun() {
+        const sunX = worldWidth / 2;
+        const sunY = worldHeight * 0.75;
+        const sunRadius = 100;
+        const sunGradient = ctx.createRadialGradient(sunX - camera.x, sunY - camera.y, 0, sunX - camera.x, sunY - camera.y, sunRadius);
+        sunGradient.addColorStop(0, "rgba(255, 153, 51, 1)");
+        sunGradient.addColorStop(1, "rgba(255, 153, 51, 0)");
+        ctx.fillStyle = sunGradient;
+        ctx.beginPath();
+        ctx.arc(sunX - camera.x, sunY - camera.y, sunRadius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      function drawGrid() {
+        const horizon = worldHeight * 0.75;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 20; i++) {
+          let y = horizon + (worldHeight - horizon) * (i / 20);
+          ctx.beginPath();
+          ctx.moveTo(0 - camera.x, y - camera.y);
+          ctx.lineTo(worldWidth - camera.x, y - camera.y);
+          ctx.stroke();
+        }
+        for (let i = 0; i <= 15; i++) {
+          let x = i * worldWidth / 15;
+          ctx.beginPath();
+          ctx.moveTo(x - camera.x, worldHeight - camera.y);
+          ctx.lineTo((worldWidth / 2) - camera.x, horizon - camera.y);
+          ctx.stroke();
+        }
+      }
+      
+      function gameLoop() {
+        updateGame();
+        renderGame();
+        requestAnimationFrame(gameLoop);
+      }
+      
+      function updateGame() {
+        if (gameEnded) return; // Stop updating if game has ended
+        
+        if (gameKeys['ArrowLeft'] || gameKeys['KeyA']) {
+          player.dx = -moveSpeed;
+        } else if (gameKeys['ArrowRight'] || gameKeys['KeyD']) {
+          player.dx = moveSpeed;
+        } else {
+          player.dx *= friction;
+        }
+        if ((gameKeys['ArrowUp'] || gameKeys['KeyW'] || gameKeys['Space']) && player.onGround) {
+          player.dy = jumpStrength;
+          player.onGround = false;
+        }
+        player.dy += gravity;
+        player.x += player.dx;
+        player.y += player.dy;
+        
+        const room = rooms[currentRoom];
+        player.onGround = false;
+        room.platforms.forEach(platform => {
+          if (rectCollision(player, platform)) {
+            if (player.dy > 0) {
+              player.y = platform.y - player.height;
+              player.dy = 0;
+              player.onGround = true;
+            } else if (player.dy < 0) {
+              player.y = platform.y + platform.height;
+              player.dy = 0;
+            }
+          }
+        });
+        if (player.y + player.height > worldHeight) {
+          player.y = worldHeight - player.height;
+          player.dy = 0;
+          player.onGround = true;
+        }
+        if (currentRoom === 1) {
+          let keyObj = room.key;
+          if (!keyObj.collected && rectCollision(player, keyObj)) {
+            keyObj.collected = true;
+            player.hasKey = true;
+            room.door.locked = false;
+            console.log("Key collected! Door unlocked.");
+          }
+          let door = room.door;
+          if (!door.locked && rectCollision(player, door)) {
+            gameEnded = true;
+            console.log("Game ended! Level cleared.");
+          }
+        }
+        updateCamera();
+      }
+      
+      function rectCollision(r1, r2) {
+        return r1.x < r2.x + r2.width &&
+               r1.x + r1.width > r2.x &&
+               r1.y < r2.y + r2.height &&
+               r1.y + r1.height > r2.y;
+      }
+      
+      function renderGame() {
+        drawBackground();
+        drawRetroSun();
+        drawGrid();
+        const room = rooms[currentRoom];
+        room.platforms.forEach(platform => {
+          drawNeonRect(platform.x, platform.y, platform.width, platform.height, "#FF00FF", "#FF00FF");
+        });
+        if (currentRoom === 1) {
+          const door = room.door;
+          const doorColor = door.locked ? "#FF0000" : "#00FF00";
+          drawNeonRect(door.x, door.y, door.width, door.height, doorColor, doorColor);
+          const keyObj = room.key;
+          if (!keyObj.collected) {
+            drawNeonRect(keyObj.x, keyObj.y, keyObj.width, keyObj.height, "#FFFF00", "#FFFF00");
+          }
+        }
+        drawNeonRect(player.x, player.y, player.width, player.height, "#00FFFF", "#00FFFF");
+        
+        // Overlay end-of-game dialogue if game has ended
+        if (gameEnded) {
+          ctx.save();
+          ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#FFFFFF";
+          ctx.font = "20px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("Thank you for playing! This game was generated entirely using AI.", canvas.width / 2, canvas.height / 2);
+          ctx.restore();
+        }
+      }
+      
+      gameLoop();
+      
+      // Lightbox for images in the portfolio window
+      const portfolioContent = document.querySelector('#portfolioWindow .window-content');
+      const allImages = portfolioContent.querySelectorAll('img');
+      allImages.forEach(img => {
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', function() {
+          const lightbox = document.getElementById('lightbox');
+          lightbox.innerHTML = '<img src="' + this.src + '" alt="Enlarged Image" />';
+          lightbox.style.display = 'flex';
+        });
+      });
+      document.getElementById('lightbox').addEventListener('click', function() {
+        this.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
